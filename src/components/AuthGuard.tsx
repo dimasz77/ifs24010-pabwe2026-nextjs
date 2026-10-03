@@ -19,8 +19,15 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [initialized, token, user, router, dispatch]);
 
-  // Render pertama (server & klien) harus identik -> tampilkan kerangka pemuatan
-  if (!initialized || !token) {
+  // Sebelum token dibaca (render server & render klien pertama) tampilkan konten halaman apa adanya.
+  // Isinya hanya kerangka/skeleton karena data baru diambil setelah token tersedia, sehingga
+  // FCP/LCP tidak menunggu JavaScript. Server dan klien merender hal yang sama -> tidak ada mismatch.
+  if (!initialized) {
+    return <>{children}</>;
+  }
+
+  // Sudah dicek tetapi tidak ada token -> sedang dialihkan ke halaman login
+  if (!token) {
     return (
       <main className="min-h-screen bg-slate-900 flex items-center justify-center">
         <p role="status" aria-busy="true" className="text-slate-400 text-sm">

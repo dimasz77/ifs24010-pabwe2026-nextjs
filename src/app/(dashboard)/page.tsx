@@ -13,14 +13,14 @@ import { HiPlus } from "react-icons/hi2";
 export default function FeedPage() {
   const dispatch = useAppDispatch();
   const { posts, isLoading, error } = useAppSelector((state) => state.posts);
-  const { user } = useAppSelector((state) => state.auth);
+  const { user, token } = useAppSelector((state) => state.auth);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
 
   useEffect(() => {
-    dispatch(fetchPosts());
-  }, [dispatch]);
+    if (token) dispatch(fetchPosts());
+  }, [dispatch, token]);
 
   const handleDelete = (id: string | number) => {
     if (confirm("Apakah Anda yakin ingin menghapus postingan ini?")) {
@@ -57,10 +57,11 @@ export default function FeedPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((post) => (
+          {posts.map((post, index) => (
             <PostCard
               key={post.id}
               post={post}
+              priority={index < 2}
               currentUserId={user?.id}
               onEdit={(p) => setEditingPost(p)}
               onDelete={handleDelete}

@@ -4,18 +4,23 @@ import Link from "next/link";
 import { Post } from "@/types";
 import { HiOutlinePencilSquare, HiOutlineTrash } from "react-icons/hi2";
 
+// Satu instance Intl dipakai bersama; toLocaleDateString("id-ID") membuat instance baru di setiap panggilan (mahal)
+const dateFormatter = new Intl.DateTimeFormat("id-ID");
+
 interface PostCardProps {
+  /** true untuk kartu di atas layar: gambar dimuat segera (bukan lazy) agar LCP cepat */
+  priority?: boolean;
   post: Post;
   currentUserId?: string | number;
   onEdit?: (post: Post) => void;
   onDelete?: (id: string | number) => void;
 }
 
-export default function PostCard({ post, currentUserId, onEdit, onDelete }: PostCardProps) {
+export default function PostCard({ post, currentUserId, onEdit, onDelete, priority = false }: PostCardProps) {
   const isOwner = currentUserId !== undefined && String(post.user_id) === String(currentUserId);
   const title = post.title?.trim() || `Postingan #${post.id}`;
   const created = post.created_at ? new Date(post.created_at) : null;
-  const dateLabel = created && !Number.isNaN(created.getTime()) ? created.toLocaleDateString("id-ID") : "";
+  const dateLabel = created && !Number.isNaN(created.getTime()) ? dateFormatter.format(created) : "";
 
   return (
     <article className="bg-slate-800/60 border border-slate-700/50 hover:border-indigo-500/50 rounded-2xl p-5 transition-all duration-200 flex flex-col justify-between shadow-lg">
@@ -27,7 +32,8 @@ export default function PostCard({ post, currentUserId, onEdit, onDelete }: Post
               alt={title}
               width={400}
               height={192}
-              loading="lazy"
+              loading={priority ? "eager" : "lazy"}
+              fetchPriority={priority ? "high" : "auto"}
               decoding="async"
               className="w-full h-full object-cover hover:scale-105 transition duration-300"
             />

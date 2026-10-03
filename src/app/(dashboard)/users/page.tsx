@@ -10,10 +10,12 @@ import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
 export default function UsersPage() {
   const dispatch = useAppDispatch();
   const users = useAppSelector((state) => state.users.users);
+  const token = useAppSelector((state) => state.auth.token);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!token) return;
     let active = true;
 
     (async () => {
@@ -32,7 +34,7 @@ export default function UsersPage() {
     return () => {
       active = false;
     };
-  }, [dispatch]);
+  }, [dispatch, token]);
 
   return (
     <div>

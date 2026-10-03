@@ -13,16 +13,18 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
   const postId = resolvedParams.postId;
   const dispatch = useAppDispatch();
   const { selectedPost, isLoading, error } = useAppSelector((state) => state.posts);
+  const token = useAppSelector((state) => state.auth.token);
   const { user } = useAppSelector((state) => state.auth);
 
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
 
   useEffect(() => {
+    if (!token) return;
     dispatch(fetchPostDetail(postId));
     return () => {
       dispatch(clearSelectedPost());
     };
-  }, [dispatch, postId]);
+  }, [dispatch, postId, token]);
 
   if (!selectedPost && error && !isLoading) {
     return (

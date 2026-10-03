@@ -7,7 +7,8 @@ import { normalizePost, normalizePosts } from "@/helpers/postHelper";
 const initialState: PostState = {
   posts: [],
   selectedPost: null,
-  isLoading: false,
+  // true sejak awal: halaman menampilkan skeleton (bukan "kosong") sampai data pertama selesai dimuat
+  isLoading: true,
   error: null,
 };
 
