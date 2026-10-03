@@ -8,8 +8,8 @@ import { fetchApi, setToken } from "@/helpers/apiHelper";
 export default function LoginPage() {
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [kataSandi, setKataSandi] = useState("");
+  const [identifier, setIdentifier] = useState(""); // Bisa diisi Username atau Email
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -19,9 +19,15 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // Mengirimkan kombinasi field agar cocok dengan kebutuhan API Delcom
       const res = await fetchApi("/auth/login", {
         method: "POST",
-        body: JSON.stringify({ email, kata_sandi: kataSandi }),
+        body: JSON.stringify({
+          username: identifier.trim(),
+          email: identifier.trim(),
+          password: password,
+          kata_sandi: password,
+        }),
       });
 
       if (res.data?.token) {
@@ -31,7 +37,7 @@ export default function LoginPage() {
       router.push("/posts");
     } catch (err: unknown) {
       const errorObj = err as Error;
-      setErrorMessage(errorObj.message || "Gagal melakukan login");
+      setErrorMessage(errorObj.message || "Gagal melakukan login. Periksa kembali kredensial Anda.");
     } finally {
       setLoading(false);
     }
@@ -53,14 +59,16 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              Username / Email
+            </label>
             <input
-              type="email"
+              type="text"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm"
-              placeholder="nama@email.com"
+              placeholder="Username atau Email"
             />
           </div>
 
@@ -69,8 +77,8 @@ export default function LoginPage() {
             <input
               type="password"
               required
-              value={kataSandi}
-              onChange={(e) => setKataSandi(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm"
               placeholder="••••••••"
             />
