@@ -12,7 +12,10 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, currentUserId, onEdit, onDelete }: PostCardProps) {
-  const isOwner = String(post.user_id) === String(currentUserId);
+  const isOwner = currentUserId !== undefined && String(post.user_id) === String(currentUserId);
+  const title = post.title?.trim() || `Postingan #${post.id}`;
+  const created = post.created_at ? new Date(post.created_at) : null;
+  const dateLabel = created && !Number.isNaN(created.getTime()) ? created.toLocaleDateString("id-ID") : "";
 
   return (
     <article className="bg-slate-800/60 border border-slate-700/50 hover:border-indigo-500/50 rounded-2xl p-5 transition-all duration-200 flex flex-col justify-between shadow-lg">
@@ -21,7 +24,7 @@ export default function PostCard({ post, currentUserId, onEdit, onDelete }: Post
           <div className="mb-4 overflow-hidden rounded-xl h-48 bg-slate-900">
             <img
               src={post.cover}
-              alt={post.title}
+              alt={title}
               width={400}
               height={192}
               loading="lazy"
@@ -32,11 +35,11 @@ export default function PostCard({ post, currentUserId, onEdit, onDelete }: Post
         )}
         <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
           <span>Oleh: {post.user?.name || "Pengguna Anonim"}</span>
-          <span>{new Date(post.created_at).toLocaleDateString("id-ID")}</span>
+          <span>{dateLabel}</span>
         </div>
         <h2 className="text-xl font-bold text-slate-100 mb-2 line-clamp-2">
           <Link href={`/posts/${post.id}`} className="hover:text-indigo-300 transition">
-            {post.title}
+            {title}
           </Link>
         </h2>
         <p className="text-slate-300 text-sm line-clamp-3 mb-4 leading-relaxed">
@@ -49,7 +52,7 @@ export default function PostCard({ post, currentUserId, onEdit, onDelete }: Post
           href={`/posts/${post.id}`}
           className="text-indigo-300 font-medium hover:underline"
         >
-          Lihat detail<span className="sr-only"> postingan {post.title}</span> &rarr;
+          Lihat detail<span className="sr-only"> postingan {title}</span> &rarr;
         </Link>
 
         {isOwner && (
@@ -60,7 +63,7 @@ export default function PostCard({ post, currentUserId, onEdit, onDelete }: Post
                 onClick={() => onEdit(post)}
                 className="p-1.5 text-slate-400 hover:text-indigo-300 hover:bg-slate-700 rounded-lg transition"
                 title="Edit Post"
-                aria-label={`Edit postingan ${post.title}`}
+                aria-label={`Edit postingan ${title}`}
               >
                 <HiOutlinePencilSquare aria-hidden="true" className="text-base" />
               </button>
@@ -71,7 +74,7 @@ export default function PostCard({ post, currentUserId, onEdit, onDelete }: Post
                 onClick={() => onDelete(post.id)}
                 className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-700 rounded-lg transition"
                 title="Hapus Post"
-                aria-label={`Hapus postingan ${post.title}`}
+                aria-label={`Hapus postingan ${title}`}
               >
                 <HiOutlineTrash aria-hidden="true" className="text-base" />
               </button>

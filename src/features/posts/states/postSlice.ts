@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { PostState, Post } from "@/types";
 import { postApi } from "../api/postApi";
 import { pickEntity, unwrapData } from "@/helpers/apiHelper";
+import { normalizePost, normalizePosts } from "@/helpers/postHelper";
 
 const initialState: PostState = {
   posts: [],
@@ -16,7 +17,7 @@ export const fetchPosts = createAsyncThunk(
     try {
       const res = await postApi.getAll();
       const data = unwrapData<Post[] | { posts?: Post[] }>(res);
-      return Array.isArray(data) ? data : data?.posts ?? [];
+      return normalizePosts(Array.isArray(data) ? data : data?.posts ?? []);
     } catch (err: unknown) {
       const error = err as Error;
       return rejectWithValue(error.message);
@@ -29,7 +30,7 @@ export const fetchPostDetail = createAsyncThunk(
   async (id: string | number, { rejectWithValue }) => {
     try {
       const res = await postApi.getById(id);
-      return pickEntity<Post>(res, "post");
+      return normalizePost(pickEntity<Post>(res, "post"));
     } catch (err: unknown) {
       const error = err as Error;
       return rejectWithValue(error.message);
@@ -42,7 +43,7 @@ export const createPost = createAsyncThunk(
   async (payload: { title: string; content: string }, { rejectWithValue }) => {
     try {
       const res = await postApi.create(payload);
-      return pickEntity<Post>(res, "post");
+      return normalizePost(pickEntity<Post>(res, "post"));
     } catch (err: unknown) {
       const error = err as Error;
       return rejectWithValue(error.message);
@@ -58,7 +59,7 @@ export const updatePost = createAsyncThunk(
   ) => {
     try {
       const res = await postApi.update(id, { title, content });
-      return pickEntity<Post>(res, "post");
+      return normalizePost(pickEntity<Post>(res, "post"));
     } catch (err: unknown) {
       const error = err as Error;
       return rejectWithValue(error.message);

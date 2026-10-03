@@ -90,7 +90,11 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
         <div className="flex items-center gap-3 text-xs text-slate-400 mb-4">
           <span>Penulis: <strong className="text-slate-200">{selectedPost.user?.name || "Anonim"}</strong></span>
           <span>•</span>
-          <span>{new Date(selectedPost.created_at).toLocaleString("id-ID")}</span>
+          <span>
+            {Number.isNaN(new Date(selectedPost.created_at).getTime())
+              ? ""
+              : new Date(selectedPost.created_at).toLocaleString("id-ID")}
+          </span>
         </div>
 
         <h1 className="text-3xl font-bold text-slate-100 mb-6 leading-tight">
