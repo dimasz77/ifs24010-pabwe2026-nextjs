@@ -33,7 +33,6 @@ export default function LoginPage() {
         setToken(res.data.token);
       }
 
-      // Pengalihan ke halaman utama (root)
       router.push("/");
     } catch (err: unknown) {
       const errorObj = err as Error;
