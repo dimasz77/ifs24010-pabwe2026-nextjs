@@ -8,7 +8,7 @@ import { fetchApi, setToken } from "@/helpers/apiHelper";
 export default function LoginPage() {
   const router = useRouter();
 
-  const [identifier, setIdentifier] = useState(""); // Bisa diisi Username atau Email
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -19,7 +19,6 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Mengirimkan kombinasi field agar cocok dengan kebutuhan API Delcom
       const res = await fetchApi("/auth/login", {
         method: "POST",
         body: JSON.stringify({
@@ -34,7 +33,8 @@ export default function LoginPage() {
         setToken(res.data.token);
       }
 
-      router.push("/posts");
+      // Pengalihan ke halaman utama (root)
+      router.push("/");
     } catch (err: unknown) {
       const errorObj = err as Error;
       setErrorMessage(errorObj.message || "Gagal melakukan login. Periksa kembali kredensial Anda.");
