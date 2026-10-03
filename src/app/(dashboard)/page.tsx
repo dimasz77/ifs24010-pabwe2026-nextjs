@@ -1,14 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { fetchPosts, deletePost } from "@/features/posts/states/postSlice";
 import PostCard from "@/features/posts/components/PostCard";
-import CreatePostModal from "@/features/posts/components/CreatePostModal";
-import EditPostModal from "@/features/posts/components/EditPostModal";
 import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
 import { Post } from "@/types";
 import { HiPlus } from "react-icons/hi2";
+
+// Modal baru dimuat saat pertama kali dibutuhkan
+const CreatePostModal = dynamic(
+  () => import("@/features/posts/components/CreatePostModal"),
+  { ssr: false }
+);
+const EditPostModal = dynamic(
+  () => import("@/features/posts/components/EditPostModal"),
+  { ssr: false }
+);
 
 export default function FeedPage() {
   const dispatch = useAppDispatch();
@@ -70,12 +79,16 @@ export default function FeedPage() {
         </div>
       )}
 
-      <CreatePostModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
-      <EditPostModal
-        isOpen={!!editingPost}
-        onClose={() => setEditingPost(null)}
-        post={editingPost}
-      />
+      {isCreateOpen && (
+        <CreatePostModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+      )}
+      {editingPost && (
+        <EditPostModal
+          isOpen={!!editingPost}
+          onClose={() => setEditingPost(null)}
+          post={editingPost}
+        />
+      )}
     </div>
   );
 }

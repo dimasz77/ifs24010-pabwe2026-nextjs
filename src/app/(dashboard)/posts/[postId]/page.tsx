@@ -1,12 +1,19 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
+import dynamic from "next/dynamic";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { fetchPostDetail, clearSelectedPost } from "@/features/posts/states/postSlice";
-import ChangeCoverModal from "@/features/posts/components/ChangeCoverModal";
+import { getImageUrl } from "@/helpers/imageUrl";
 import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
 import Link from "next/link";
 import { HiOutlineArrowLeft, HiOutlinePhoto } from "react-icons/hi2";
+
+// Modal baru dimuat saat pertama kali dibuka
+const ChangeCoverModal = dynamic(
+  () => import("@/features/posts/components/ChangeCoverModal"),
+  { ssr: false }
+);
 
 export default function PostDetailPage({ params }: { params: Promise<{ postId: string }> }) {
   const resolvedParams = use(params);
@@ -17,6 +24,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
   const { user } = useAppSelector((state) => state.auth);
 
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
+  const [imgFailed, setImgFailed] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -25,6 +33,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
       dispatch(clearSelectedPost());
     };
   }, [dispatch, postId, token]);
+
+  // Reset status gagal-muat saat cover berubah (misalnya setelah ganti cover)
+  const coverUrl = getImageUrl(selectedPost?.cover);
+  useEffect(() => {
+    setImgFailed(false);
+  }, [coverUrl]);
 
   if (!selectedPost && error && !isLoading) {
     return (
@@ -41,6 +55,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
   }
 
   const isOwner = String(selectedPost.user_id) === String(user?.id);
+  const showCover = Boolean(coverUrl) && !imgFailed;
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -53,14 +68,15 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
       </Link>
 
       <div className="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 sm:p-8 shadow-xl">
-        {selectedPost.cover ? (
+        {showCover ? (
           <div className="relative mb-6 overflow-hidden rounded-xl h-64 sm:h-80 bg-slate-900">
             <img
-              src={selectedPost.cover}
+              src={coverUrl}
               alt={selectedPost.title}
               width={768}
               height={320}
               decoding="async"
+              onError={() => setImgFailed(true)}
               className="w-full h-full object-cover"
             />
             {isOwner && (
@@ -83,7 +99,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
                 className="text-indigo-300 hover:underline text-sm font-medium inline-flex items-center gap-2"
               >
                 <HiOutlinePhoto aria-hidden="true" className="text-base" />
-                <span>Tambah Gambar Sampul (Cover)</span>
+                <span>{imgFailed ? "Cover gagal dimuat, ganti gambar" : "Tambah Gambar Sampul (Cover)"}</span>
               </button>
             </div>
           )
@@ -108,12 +124,14 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
         </div>
       </div>
 
-      <ChangeCoverModal
-        isOpen={isCoverModalOpen}
-        onClose={() => setIsCoverModalOpen(false)}
-        postId={selectedPost.id}
-        onSuccess={() => dispatch(fetchPostDetail(postId))}
-      />
+      {isCoverModalOpen && (
+        <ChangeCoverModal
+          isOpen={isCoverModalOpen}
+          onClose={() => setIsCoverModalOpen(false)}
+          postId={selectedPost.id}
+          onSuccess={() => dispatch(fetchPostDetail(postId))}
+        />
+      )}
     </div>
   );
 }
