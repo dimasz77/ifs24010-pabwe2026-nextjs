@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { fetchApi } from "@/helpers/apiHelper";
 
 export default function LoginPage() {
@@ -78,6 +79,17 @@ export default function LoginPage() {
             {loading ? "Memproses..." : "Masuk"}
           </button>
         </form>
+
+        {/* Tautan untuk Buat Akun / Registrasi */}
+        <div className="mt-6 text-center text-sm text-slate-400">
+          Belum punya akun?{" "}
+          <Link
+            href="/auth/register"
+            className="text-indigo-400 hover:text-indigo-300 font-medium underline underline-offset-4 transition"
+          >
+            Buat akun
+          </Link>
+        </div>
       </div>
     </div>
   );
