@@ -1,14 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Post } from "@/types";
+import { getImageUrl } from "@/helpers/imageUrl";
 import { HiOutlinePencilSquare, HiOutlineTrash } from "react-icons/hi2";
 
-// Satu instance Intl dipakai bersama; toLocaleDateString("id-ID") membuat instance baru di setiap panggilan (mahal)
 const dateFormatter = new Intl.DateTimeFormat("id-ID");
 
 interface PostCardProps {
-  /** true untuk kartu di atas layar: gambar dimuat segera (bukan lazy) agar LCP cepat */
   priority?: boolean;
   post: Post;
   currentUserId?: string | number;
@@ -17,24 +17,28 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, currentUserId, onEdit, onDelete, priority = false }: PostCardProps) {
+  const [imgFailed, setImgFailed] = useState(false);
+
   const isOwner = currentUserId !== undefined && String(post.user_id) === String(currentUserId);
   const title = post.title?.trim() || `Postingan #${post.id}`;
   const created = post.created_at ? new Date(post.created_at) : null;
   const dateLabel = created && !Number.isNaN(created.getTime()) ? dateFormatter.format(created) : "";
+  const coverUrl = getImageUrl(post.cover);
 
   return (
     <article className="bg-slate-800/60 border border-slate-700/50 hover:border-indigo-500/50 rounded-2xl p-5 transition-all duration-200 flex flex-col justify-between shadow-lg">
       <div>
-        {post.cover && (
+        {coverUrl && !imgFailed && (
           <div className="mb-4 overflow-hidden rounded-xl h-48 bg-slate-900">
             <img
-              src={post.cover}
+              src={coverUrl}
               alt={title}
               width={400}
               height={192}
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : "auto"}
               decoding="async"
+              onError={() => setImgFailed(true)}
               className="w-full h-full object-cover hover:scale-105 transition duration-300"
             />
           </div>
