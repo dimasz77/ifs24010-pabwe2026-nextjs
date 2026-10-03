@@ -10,28 +10,36 @@ export default function RegisterPage() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [kataSandi, setKataSandi] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+
+    // Validasi panjang kata sandi di sisi client
+    if (password.length < 8) {
+      setErrorMessage("Kata sandi harus minimal 8 karakter.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       await fetchApi("/auth/register", {
         method: "POST",
         body: JSON.stringify({
-          name,
-          email,
-          kata_sandi: kataSandi,
+          name: name.trim(),
+          email: email.trim(),
+          password: password,
+          kata_sandi: password,
         }),
       });
       router.push("/auth/login");
     } catch (err: unknown) {
       const errorObj = err as Error;
-      setErrorMessage(errorObj.message || "Gagal melakukan pendaftaran");
+      setErrorMessage(errorObj.message || "Gagal melakukan pendaftaran. Pastikan data benar.");
     } finally {
       setLoading(false);
     }
@@ -81,11 +89,13 @@ export default function RegisterPage() {
             <input
               type="password"
               required
-              value={kataSandi}
-              onChange={(e) => setKataSandi(e.target.value)}
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm"
-              placeholder="••••••••"
+              placeholder="Minimal 8 karakter (huruf & angka)"
             />
+            <p className="text-xs text-slate-500 mt-1">Minimal 8 karakter, kombinasi huruf dan angka.</p>
           </div>
 
           <button
