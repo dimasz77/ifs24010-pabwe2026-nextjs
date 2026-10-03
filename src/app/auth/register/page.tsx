@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const router = useRouter();
 
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,9 +19,8 @@ export default function RegisterPage() {
     e.preventDefault();
     setErrorMessage(null);
 
-    // Validasi panjang kata sandi di sisi client
     if (password.length < 8) {
-      setErrorMessage("Kata sandi harus minimal 8 karakter.");
+      setErrorMessage("Kata sandi minimal 8 karakter.");
       return;
     }
 
@@ -31,6 +31,7 @@ export default function RegisterPage() {
         method: "POST",
         body: JSON.stringify({
           name: name.trim(),
+          username: username.trim(),
           email: email.trim(),
           password: password,
           kata_sandi: password,
@@ -39,7 +40,7 @@ export default function RegisterPage() {
       router.push("/auth/login");
     } catch (err: unknown) {
       const errorObj = err as Error;
-      setErrorMessage(errorObj.message || "Gagal melakukan pendaftaran. Pastikan data benar.");
+      setErrorMessage(errorObj.message || "Gagal melakukan pendaftaran.");
     } finally {
       setLoading(false);
     }
@@ -68,7 +69,19 @@ export default function RegisterPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm"
-              placeholder="Masukkan nama lengkap Anda"
+              placeholder="Dimas Sidabutar"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Username</label>
+            <input
+              type="text"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm"
+              placeholder="dimas123"
             />
           </div>
 
@@ -93,9 +106,8 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm"
-              placeholder="Minimal 8 karakter (huruf & angka)"
+              placeholder="Minimal 8 karakter"
             />
-            <p className="text-xs text-slate-500 mt-1">Minimal 8 karakter, kombinasi huruf dan angka.</p>
           </div>
 
           <button
