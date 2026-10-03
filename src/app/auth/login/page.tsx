@@ -3,13 +3,13 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { fetchApi } from "@/helpers/apiHelper";
+import { fetchApi, setToken } from "@/helpers/apiHelper";
 
 export default function LoginPage() {
   const router = useRouter();
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [kataSandi, setKataSandi] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -19,10 +19,15 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await fetchApi("/auth/login", {
+      const res = await fetchApi("/auth/login", {
         method: "POST",
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, kata_sandi: kataSandi }),
       });
+
+      if (res.data?.token) {
+        setToken(res.data.token);
+      }
+
       router.push("/posts");
     } catch (err: unknown) {
       const errorObj = err as Error;
@@ -48,14 +53,14 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Username</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
             <input
-              type="text"
+              type="email"
               required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm"
-              placeholder="Masukkan username Anda"
+              placeholder="nama@email.com"
             />
           </div>
 
@@ -64,8 +69,8 @@ export default function LoginPage() {
             <input
               type="password"
               required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={kataSandi}
+              onChange={(e) => setKataSandi(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm"
               placeholder="••••••••"
             />
@@ -80,7 +85,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Tautan untuk Buat Akun / Registrasi */}
         <div className="mt-6 text-center text-sm text-slate-400">
           Belum punya akun?{" "}
           <Link
