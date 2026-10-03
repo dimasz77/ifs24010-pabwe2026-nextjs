@@ -1,0 +1,98 @@
+"use client";
+
+import { useEffect, useState, use } from "react";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { fetchPostDetail, clearSelectedPost } from "@/features/posts/states/postSlice";
+import ChangeCoverModal from "@/features/posts/components/ChangeCoverModal";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+import Link from "next/link";
+import { HiOutlineArrowLeft, HiOutlinePhoto } from "react-icons/hi2";
+
+export default function PostDetailPage({ params }: { params: Promise<{ postId: string }> }) {
+  const resolvedParams = use(params);
+  const postId = resolvedParams.postId;
+  const dispatch = useAppDispatch();
+  const { selectedPost, isLoading } = useAppSelector((state) => state.posts);
+  const { user } = useAppSelector((state) => state.auth);
+
+  const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchPostDetail(postId));
+    return () => {
+      dispatch(clearSelectedPost());
+    };
+  }, [dispatch, postId]);
+
+  if (isLoading || !selectedPost) {
+    return <LoadingSkeleton />;
+  }
+
+  const isOwner = String(selectedPost.user_id) === String(user?.id);
+
+  return (
+    <div className="max-w-3xl mx-auto">
+      <Link
+        href="/"
+        className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-200 transition text-sm mb-6"
+      >
+        <HiOutlineArrowLeft />
+        <span>Kembali ke Feed</span>
+      </Link>
+
+      <div className="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 sm:p-8 shadow-xl">
+        {selectedPost.cover ? (
+          <div className="relative mb-6 overflow-hidden rounded-xl h-64 sm:h-80 bg-slate-900">
+            <img
+              src={selectedPost.cover}
+              alt={selectedPost.title}
+              className="w-full h-full object-cover"
+            />
+            {isOwner && (
+              <button
+                onClick={() => setIsCoverModalOpen(true)}
+                className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-md border border-slate-700 text-slate-200 hover:text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition"
+              >
+                <HiOutlinePhoto className="text-base" />
+                <span>Ubah Cover</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          isOwner && (
+            <div className="mb-6 p-4 border border-dashed border-slate-700 rounded-xl text-center">
+              <button
+                onClick={() => setIsCoverModalOpen(true)}
+                className="text-indigo-400 hover:underline text-sm font-medium inline-flex items-center gap-2"
+              >
+                <HiOutlinePhoto className="text-base" />
+                <span>Tambah Gambar Sampul (Cover)</span>
+              </button>
+            </div>
+          )
+        )}
+
+        <div className="flex items-center gap-3 text-xs text-slate-400 mb-4">
+          <span>Penulis: <strong className="text-slate-200">{selectedPost.user?.name || "Anonim"}</strong></span>
+          <span>•</span>
+          <span>{new Date(selectedPost.created_at).toLocaleString("id-ID")}</span>
+        </div>
+
+        <h1 className="text-3xl font-bold text-slate-100 mb-6 leading-tight">
+          {selectedPost.title}
+        </h1>
+
+        <div className="prose prose-invert max-w-none text-slate-300 leading-relaxed whitespace-pre-wrap">
+          {selectedPost.content}
+        </div>
+      </div>
+
+      <ChangeCoverModal
+        isOpen={isCoverModalOpen}
+        onClose={() => setIsCoverModalOpen(false)}
+        postId={selectedPost.id}
+        onSuccess={() => dispatch(fetchPostDetail(postId))}
+      />
+    </div>
+  );
+}

@@ -1,0 +1,79 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { fetchPosts, deletePost } from "@/features/posts/states/postSlice";
+import PostCard from "@/features/posts/components/PostCard";
+import CreatePostModal from "@/features/posts/components/CreatePostModal";
+import EditPostModal from "@/features/posts/components/EditPostModal";
+import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+import { Post } from "@/types";
+import { HiPlus } from "react-icons/hi2";
+
+export default function FeedPage() {
+  const dispatch = useAppDispatch();
+  const { posts, isLoading } = useAppSelector((state) => state.posts);
+  const { user } = useAppSelector((state) => state.auth);
+
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+
+  useEffect(() => {
+    dispatch(fetchPosts());
+  }, [dispatch]);
+
+  const handleDelete = (id: string | number) => {
+    if (confirm("Apakah Anda yakin ingin menghapus postingan ini?")) {
+      dispatch(deletePost(id));
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-100">Utama & Feed</h1>
+          <p className="text-slate-400 text-sm">Lihat aktivitas dan postingan terbaru</p>
+        </div>
+        <button
+          onClick={() => setIsCreateOpen(true)}
+          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/20"
+        >
+          <HiPlus className="text-lg" />
+          <span>Buat Post</span>
+        </button>
+      </div>
+
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <LoadingSkeleton />
+          <LoadingSkeleton />
+          <LoadingSkeleton />
+        </div>
+      ) : posts.length === 0 ? (
+        <div className="text-center py-12 bg-slate-800/40 border border-slate-800 rounded-2xl">
+          <p className="text-slate-400">Belum ada postingan. Jadilah yang pertama membuat!</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {posts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              currentUserId={user?.id}
+              onEdit={(p) => setEditingPost(p)}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
+
+      <CreatePostModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+      <EditPostModal
+        isOpen={!!editingPost}
+        onClose={() => setEditingPost(null)}
+        post={editingPost}
+      />
+    </div>
+  );
+}

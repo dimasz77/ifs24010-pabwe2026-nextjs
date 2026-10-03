@@ -1,0 +1,76 @@
+"use client";
+
+import Link from "next/link";
+import { Post } from "@/types";
+import { HiOutlinePencilSquare, HiOutlineTrash } from "react-icons/hi2";
+
+interface PostCardProps {
+  post: Post;
+  currentUserId?: string | number;
+  onEdit?: (post: Post) => void;
+  onDelete?: (id: string | number) => void;
+}
+
+export default function PostCard({ post, currentUserId, onEdit, onDelete }: PostCardProps) {
+  const isOwner = String(post.user_id) === String(currentUserId);
+
+  return (
+    <div className="bg-slate-800/60 border border-slate-700/50 hover:border-indigo-500/50 rounded-2xl p-5 transition-all duration-200 flex flex-col justify-between shadow-lg">
+      <div>
+        {post.cover && (
+          <div className="mb-4 overflow-hidden rounded-xl h-48 bg-slate-900">
+            <img
+              src={post.cover}
+              alt={post.title}
+              className="w-full h-full object-cover hover:scale-105 transition duration-300"
+            />
+          </div>
+        )}
+        <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+          <span>Oleh: {post.user?.name || "Pengguna Anonim"}</span>
+          <span>{new Date(post.created_at).toLocaleDateString("id-ID")}</span>
+        </div>
+        <Link href={`/posts/${post.id}`}>
+          <h2 className="text-xl font-bold text-slate-100 hover:text-indigo-400 transition mb-2 line-clamp-2">
+            {post.title}
+          </h2>
+        </Link>
+        <p className="text-slate-300 text-sm line-clamp-3 mb-4 leading-relaxed">
+          {post.content}
+        </p>
+      </div>
+
+      <div className="flex items-center justify-between pt-4 border-t border-slate-700/40 text-xs">
+        <Link
+          href={`/posts/${post.id}`}
+          className="text-indigo-400 font-medium hover:underline"
+        >
+          Baca Selengkapnya &rarr;
+        </Link>
+
+        {isOwner && (
+          <div className="flex items-center gap-2">
+            {onEdit && (
+              <button
+                onClick={() => onEdit(post)}
+                className="p-1.5 text-slate-400 hover:text-indigo-300 hover:bg-slate-700 rounded-lg transition"
+                title="Edit Post"
+              >
+                <HiOutlinePencilSquare className="text-base" />
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => onDelete(post.id)}
+                className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-700 rounded-lg transition"
+                title="Hapus Post"
+              >
+                <HiOutlineTrash className="text-base" />
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
