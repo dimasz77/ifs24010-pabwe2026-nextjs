@@ -1,53 +1,26 @@
-"use client";
+import Link from "next/link";
 
-import { useEffect, useState } from "react";
-import { getUsers } from "@/features/users/api/userApi";
-import { User } from "@/features/users/states/userSlice";
-
-export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchUsersData = async () => {
-      try {
-        setLoading(true);
-        const res = await getUsers();
-        setUsers(res.data);
-      } catch (err: unknown) {
-        const errorObj = err as Error;
-        setError(errorObj.message || "Gagal mengambil data pengguna");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsersData();
-  }, []);
-
-  if (loading) {
-    return <div className="p-6 text-slate-400">Memuat daftar pengguna...</div>;
-  }
-
-  if (error) {
-    return <div className="p-6 text-red-400">{error}</div>;
-  }
-
+export default function HomePage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-100">Daftar Pengguna</h1>
-        <p className="text-slate-400 text-sm">Kelola dan lihat seluruh anggota platform</p>
-      </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6 text-center">
+      <h1 className="text-4xl font-bold mb-4">Selamat Datang di DelcomFeed</h1>
+      <p className="text-slate-400 max-w-md mb-8">
+        Platform berbagi informasi dan postingan komunitas Delcom.
+      </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {users.map((u: User) => (
-          <div key={u.id} className="bg-slate-800/50 border border-slate-700/60 rounded-xl p-4 shadow">
-            <h2 className="font-semibold text-slate-100">{u.name}</h2>
-            <p className="text-slate-300 text-sm mt-2">{u.bio || "Belum ada bio."}</p>
-          </div>
-        ))}
+      <div className="flex gap-4">
+        <Link
+          href="/auth/login"
+          className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-medium transition"
+        >
+          Masuk
+        </Link>
+        <Link
+          href="/auth/register"
+          className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl font-medium transition"
+        >
+          Daftar
+        </Link>
       </div>
     </div>
   );
