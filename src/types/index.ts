@@ -2,8 +2,9 @@ export interface User {
   id: string | number;
   name: string;
   email: string;
-  bio?: string;
+  bio?: string | null;
   avatar?: string;
+  photo?: string | null;
   created_at?: string;
 }
 
@@ -27,6 +28,8 @@ export interface ApiResponse<T> {
 export interface AuthState {
   user: User | null;
   token: string | null;
+  /** true setelah token dibaca dari localStorage di sisi klien (mencegah hydration mismatch) */
+  initialized: boolean;
   isLoading: boolean;
   error: string | null;
 }

@@ -39,23 +39,25 @@ export default function EditPostModal({ isOpen, onClose, post }: EditPostModalPr
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Postingan">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1">Judul</label>
+          <label htmlFor="edit-title" className="block text-sm font-medium text-slate-300 mb-1">Judul</label>
           <input
+            id="edit-title"
             type="text"
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500"
+            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/40"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1">Konten</label>
+          <label htmlFor="edit-content" className="block text-sm font-medium text-slate-300 mb-1">Konten</label>
           <textarea
+            id="edit-content"
             required
             rows={5}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 resize-none"
+            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/40 resize-none"
           />
         </div>
         <div className="flex justify-end gap-3 pt-2">

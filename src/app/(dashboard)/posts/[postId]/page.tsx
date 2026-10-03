@@ -12,7 +12,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
   const resolvedParams = use(params);
   const postId = resolvedParams.postId;
   const dispatch = useAppDispatch();
-  const { selectedPost, isLoading } = useAppSelector((state) => state.posts);
+  const { selectedPost, isLoading, error } = useAppSelector((state) => state.posts);
   const { user } = useAppSelector((state) => state.auth);
 
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
@@ -24,8 +24,18 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
     };
   }, [dispatch, postId]);
 
+  if (!selectedPost && error && !isLoading) {
+    return (
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-2xl font-bold text-slate-100 mb-2">Postingan tidak dapat dimuat</h1>
+        <p role="alert" className="text-slate-400 mb-4">{error}</p>
+        <Link href="/" className="text-indigo-300 underline underline-offset-4">Kembali ke Feed</Link>
+      </div>
+    );
+  }
+
   if (isLoading || !selectedPost) {
-    return <LoadingSkeleton />;
+    return <LoadingSkeleton count={1} />;
   }
 
   const isOwner = String(selectedPost.user_id) === String(user?.id);
@@ -36,7 +46,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
         href="/"
         className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-200 transition text-sm mb-6"
       >
-        <HiOutlineArrowLeft />
+        <HiOutlineArrowLeft aria-hidden="true" />
         <span>Kembali ke Feed</span>
       </Link>
 
@@ -46,14 +56,18 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
             <img
               src={selectedPost.cover}
               alt={selectedPost.title}
+              width={768}
+              height={320}
+              decoding="async"
               className="w-full h-full object-cover"
             />
             {isOwner && (
               <button
+                type="button"
                 onClick={() => setIsCoverModalOpen(true)}
                 className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-md border border-slate-700 text-slate-200 hover:text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition"
               >
-                <HiOutlinePhoto className="text-base" />
+                <HiOutlinePhoto aria-hidden="true" className="text-base" />
                 <span>Ubah Cover</span>
               </button>
             )}
@@ -62,10 +76,11 @@ export default function PostDetailPage({ params }: { params: Promise<{ postId: s
           isOwner && (
             <div className="mb-6 p-4 border border-dashed border-slate-700 rounded-xl text-center">
               <button
+                type="button"
                 onClick={() => setIsCoverModalOpen(true)}
-                className="text-indigo-400 hover:underline text-sm font-medium inline-flex items-center gap-2"
+                className="text-indigo-300 hover:underline text-sm font-medium inline-flex items-center gap-2"
               >
-                <HiOutlinePhoto className="text-base" />
+                <HiOutlinePhoto aria-hidden="true" className="text-base" />
                 <span>Tambah Gambar Sampul (Cover)</span>
               </button>
             </div>

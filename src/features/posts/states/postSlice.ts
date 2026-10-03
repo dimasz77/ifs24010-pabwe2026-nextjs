@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { PostState, Post } from "@/types";
 import { postApi } from "../api/postApi";
+import { pickEntity, unwrapData } from "@/helpers/apiHelper";
 
 const initialState: PostState = {
   posts: [],
@@ -14,7 +15,8 @@ export const fetchPosts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await postApi.getAll();
-      return res.posts || [];
+      const data = unwrapData<Post[] | { posts?: Post[] }>(res);
+      return Array.isArray(data) ? data : data?.posts ?? [];
     } catch (err: unknown) {
       const error = err as Error;
       return rejectWithValue(error.message);
@@ -27,7 +29,7 @@ export const fetchPostDetail = createAsyncThunk(
   async (id: string | number, { rejectWithValue }) => {
     try {
       const res = await postApi.getById(id);
-      return res.post;
+      return pickEntity<Post>(res, "post");
     } catch (err: unknown) {
       const error = err as Error;
       return rejectWithValue(error.message);
@@ -40,7 +42,7 @@ export const createPost = createAsyncThunk(
   async (payload: { title: string; content: string }, { rejectWithValue }) => {
     try {
       const res = await postApi.create(payload);
-      return res.post;
+      return pickEntity<Post>(res, "post");
     } catch (err: unknown) {
       const error = err as Error;
       return rejectWithValue(error.message);
@@ -56,7 +58,7 @@ export const updatePost = createAsyncThunk(
   ) => {
     try {
       const res = await postApi.update(id, { title, content });
-      return res.post;
+      return pickEntity<Post>(res, "post");
     } catch (err: unknown) {
       const error = err as Error;
       return rejectWithValue(error.message);
@@ -83,6 +85,7 @@ const postSlice = createSlice({
   reducers: {
     clearSelectedPost: (state) => {
       state.selectedPost = null;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -99,8 +102,17 @@ const postSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
+      .addCase(fetchPostDetail.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
       .addCase(fetchPostDetail.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.selectedPost = action.payload;
+      })
+      .addCase(fetchPostDetail.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = (action.payload as string) || "Postingan tidak ditemukan";
       })
       .addCase(createPost.fulfilled, (state, action) => {
         state.posts.unshift(action.payload);

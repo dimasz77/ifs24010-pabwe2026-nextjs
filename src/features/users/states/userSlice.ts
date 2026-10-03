@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { getToken, setToken, removeToken } from "@/helpers/apiHelper";
+import { setToken, removeToken } from "@/helpers/apiHelper";
 
 export interface User {
   id: number;
@@ -24,7 +24,7 @@ interface UserState {
 const initialState: UserState = {
   user: null,
   users: [],
-  token: getToken(),
+  token: null,
   loading: false,
   isLoading: false,
   error: null,

@@ -12,7 +12,7 @@ import { HiPlus } from "react-icons/hi2";
 
 export default function FeedPage() {
   const dispatch = useAppDispatch();
-  const { posts, isLoading } = useAppSelector((state) => state.posts);
+  const { posts, isLoading, error } = useAppSelector((state) => state.posts);
   const { user } = useAppSelector((state) => state.auth);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -36,19 +36,20 @@ export default function FeedPage() {
           <p className="text-slate-400 text-sm">Lihat aktivitas dan postingan terbaru</p>
         </div>
         <button
+          type="button"
           onClick={() => setIsCreateOpen(true)}
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/20"
         >
-          <HiPlus className="text-lg" />
+          <HiPlus aria-hidden="true" className="text-lg" />
           <span>Buat Post</span>
         </button>
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <LoadingSkeleton />
-          <LoadingSkeleton />
-          <LoadingSkeleton />
+        <LoadingSkeleton count={3} />
+      ) : error && posts.length === 0 ? (
+        <div role="alert" className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm">
+          {error}
         </div>
       ) : posts.length === 0 ? (
         <div className="text-center py-12 bg-slate-800/40 border border-slate-800 rounded-2xl">
