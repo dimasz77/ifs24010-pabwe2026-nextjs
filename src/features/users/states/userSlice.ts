@@ -1,61 +1,56 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { UserState, User } from "@/types";
-import { userApi } from "../api/userApi";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { getToken, setToken, removeToken } from "@/helpers/apiHelper";
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  bio?: string | null; // Ditambahkan di sini
+  email_verified_at?: string | null;
+  photo?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface UserState {
+  user: User | null;
+  users: User[];
+  token: string | null;
+  loading: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
 
 const initialState: UserState = {
+  user: null,
   users: [],
-  selectedUser: null,
+  token: getToken(),
+  loading: false,
   isLoading: false,
   error: null,
 };
 
-export const fetchUsers = createAsyncThunk(
-  "users/fetchAll",
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await userApi.getAll();
-      return res.users || [];
-    } catch (err: unknown) {
-      const error = err as Error;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const fetchUserById = createAsyncThunk(
-  "users/fetchById",
-  async (id: string | number, { rejectWithValue }) => {
-    try {
-      const res = await userApi.getById(id);
-      return res.user;
-    } catch (err: unknown) {
-      const error = err as Error;
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-const userSlice = createSlice({
-  name: "users",
+export const userSlice = createSlice({
+  name: "user",
   initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchUsers.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(fetchUsers.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.users = action.payload;
-      })
-      .addCase(fetchUsers.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(fetchUserById.fulfilled, (state, action) => {
-        state.selectedUser = action.payload;
-      });
+  reducers: {
+    setUser: (state, action: PayloadAction<User | null>) => {
+      state.user = action.payload;
+    },
+    setUsers: (state, action: PayloadAction<User[]>) => {
+      state.users = action.payload;
+    },
+    logout: (state) => {
+      state.user = null;
+      state.token = null;
+      removeToken();
+    },
+    setTokenState: (state, action: PayloadAction<string>) => {
+      state.token = action.payload;
+      setToken(action.payload);
+    },
   },
 });
 
+export const { setUser, setUsers, logout, setTokenState } = userSlice.actions;
 export default userSlice.reducer;

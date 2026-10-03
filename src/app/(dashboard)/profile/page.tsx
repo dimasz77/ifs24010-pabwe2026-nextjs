@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-import { userApi } from "@/features/users/api/userApi";
+import { updateProfile, updatePassword } from "@/features/users/api/userApi";
 import { fetchMe } from "@/features/auth/states/authSlice";
 
 export default function ProfilePage() {
@@ -20,7 +20,7 @@ export default function ProfilePage() {
   const handleUpdateProfile = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      await userApi.updateProfile({ name, bio });
+      await updateProfile({ name, bio });
       dispatch(fetchMe());
       setProfileMsg("Profil berhasil diperbarui!");
     } catch (err: unknown) {
@@ -32,7 +32,7 @@ export default function ProfilePage() {
   const handleUpdatePassword = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      await userApi.updatePassword({ old_password: oldPassword, new_password: newPassword });
+      await updatePassword({ old_password: oldPassword, new_password: newPassword });
       setPwdMsg("Kata sandi berhasil diperbarui!");
       setOldPassword("");
       setNewPassword("");

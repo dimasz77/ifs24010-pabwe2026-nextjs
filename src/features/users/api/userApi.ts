@@ -1,20 +1,24 @@
 import { fetchApi } from "@/helpers/apiHelper";
-import { User } from "@/types";
+import { User } from "../states/userSlice";
 
-export const userApi = {
-  getAll: () => fetchApi<{ users: User[] }>("/users"),
-  
-  getById: (id: string | number) => fetchApi<{ user: User }>(`/users/${id}`),
-  
-  updateProfile: (data: Partial<User>) =>
-    fetchApi<{ user: User }>("/users/profile", {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    }),
-    
-  updatePassword: (passwordData: Record<string, string>) =>
-    fetchApi<{ message: string }>("/users/password", {
-      method: "PUT",
-      body: JSON.stringify(passwordData),
-    }),
+export const getUserProfile = async (): Promise<{ status: string; data: User }> => {
+  return await fetchApi("/users/me");
+};
+
+export const getUsers = async (): Promise<{ status: string; data: User[] }> => {
+  return await fetchApi("/users");
+};
+
+export const updateProfile = async (payload: { name: string; bio: string }): Promise<{ status: string; data: User }> => {
+  return await fetchApi("/users/me", {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+};
+
+export const updatePassword = async (payload: { old_password: string; new_password: string }): Promise<{ status: string }> => {
+  return await fetchApi("/users/password", {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
 };

@@ -1,35 +1,36 @@
 import { API_BASE_URL } from "@/lib/config";
-import Cookies from "js-cookie";
 
 export const getToken = (): string | null => {
-  if (typeof window === "undefined") return null;
-  return Cookies.get("token") || localStorage.getItem("token");
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("token");
+  }
+  return null;
 };
 
-export const setToken = (token: string) => {
-  Cookies.set("token", token, { expires: 7 });
-  localStorage.setItem("token", token);
+export const setToken = (token: string): void => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("token", token);
+  }
 };
 
-export const removeToken = () => {
-  Cookies.remove("token");
-  localStorage.removeItem("token");
+export const removeToken = (): void => {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("token");
+  }
 };
 
-export async function fetchApi<T>(
+// Menambahkan <T = any> agar mendukung generic return type
+export const fetchApi = async <T = any>(
   endpoint: string,
   options: RequestInit = {}
-): Promise<T> {
+): Promise<T> => {
   const token = getToken();
+
   const headers: HeadersInit = {
     "Content-Type": "application/json",
-    Accept: "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(options.headers || {}),
   };
-
-  if (token) {
-    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
-  }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
@@ -39,8 +40,10 @@ export async function fetchApi<T>(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Terjadi kesalahan pada request API");
+    throw new Error(data.message || "Terjadi kesalahan pada server");
   }
 
-  return data;
-}
+  return data as T;
+};
+
+export const apiFetch = fetchApi;
