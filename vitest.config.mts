@@ -16,9 +16,13 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
+      reportsDirectory: "./coverage",
+      reportOnFailure: true,
+      all: true,
       include: ["src/**/*.{js,jsx,ts,tsx}"],
       exclude: [
         "node_modules/**",
+        "src/__tests__/**",
         "src/app/**",
         "src/components/Providers.tsx",
         "src/setupTests.ts",
@@ -26,6 +30,7 @@ export default defineConfig({
         "src/types/**",
         "src/hooks/redux.ts",
         "src/server.ts",
+        "**/*.d.ts",
         "**/*.test.{ts,tsx}",
         ".next/**",
       ],
