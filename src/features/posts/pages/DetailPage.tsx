@@ -9,7 +9,7 @@ import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
 import Link from "next/link";
 import { HiOutlineArrowLeft, HiOutlinePhoto } from "react-icons/hi2";
 
-export default function DetailPage({ params }: { params: Promise<{ postId: string }> }) {
+export default function DetailPage({ params }: Readonly<{ params: Promise<{ postId: string }> }>) {
   const { postId } = use(params);
   const dispatch = useAppDispatch();
   const { selectedPost, isLoading, error } = useAppSelector((state) => state.posts);
