@@ -9,14 +9,14 @@ import { HiOutlinePencilSquare, HiOutlineTrash } from "react-icons/hi2";
 const dateFormatter = new Intl.DateTimeFormat("id-ID");
 
 interface PostCardProps {
-  priority?: boolean;
-  post: Post;
-  currentUserId?: string | number;
-  onEdit?: (post: Post) => void;
-  onDelete?: (id: string | number) => void;
+  readonly priority?: boolean;
+  readonly post: Post;
+  readonly currentUserId?: string | number;
+  readonly onEdit?: (post: Post) => void;
+  readonly onDelete?: (id: string | number) => void;
 }
 
-export default function PostCard({ post, currentUserId, onEdit, onDelete, priority = false }: PostCardProps) {
+export default function PostCard({ post, currentUserId, onEdit, onDelete, priority = false }: Readonly<PostCardProps>) {
   const [imgFailed, setImgFailed] = useState(false);
 
   const isOwner = currentUserId !== undefined && String(post.user_id) === String(currentUserId);

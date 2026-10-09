@@ -4,13 +4,13 @@ import { ReactNode, useEffect, useId } from "react";
 import { HiXMark } from "react-icons/hi2";
 
 interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: ReactNode;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly title: string;
+  readonly children: ReactNode;
 }
 
-export default function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children }: Readonly<ModalProps>) {
   const titleId = useId();
 
   useEffect(() => {
@@ -26,8 +26,8 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-      <div
-        role="dialog"
+      <dialog
+        open
         aria-modal="true"
         aria-labelledby={titleId}
         className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden"
@@ -42,7 +42,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
           >
             <HiXMark aria-hidden="true" className="text-xl" />
           </button>
-        </div>
+        </dialog>
         <div className="p-6">{children}</div>
       </div>
     </div>

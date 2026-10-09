@@ -1,22 +1,22 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import Modal from "@/components/ui/Modal";
 import { postApi } from "../api/postApi";
 
 interface ChangeCoverModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  postId: string | number;
-  onSuccess: () => void;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly postId: string | number;
+  readonly onSuccess: () => void;
 }
 
-export default function ChangeCoverModal({ isOpen, onClose, postId, onSuccess }: ChangeCoverModalProps) {
+export default function ChangeCoverModal({ isOpen, onClose, postId, onSuccess }: Readonly<ChangeCoverModalProps>) {
   const [coverUrl, setCoverUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!coverUrl) return;
 

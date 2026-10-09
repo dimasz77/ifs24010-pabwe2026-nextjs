@@ -11,21 +11,21 @@ export class ApiError extends Error {
 }
 
 export const getToken = (): string | null => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("token");
+  if (typeof globalThis.window !== "undefined") {
+    return globalThis.window.localStorage.getItem("token");
   }
   return null;
 };
 
 export const setToken = (token: string): void => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("token", token);
+  if (typeof globalThis.window !== "undefined") {
+    globalThis.window.localStorage.setItem("token", token);
   }
 };
 
 export const removeToken = (): void => {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("token");
+  if (typeof globalThis.window !== "undefined") {
+    globalThis.window.localStorage.removeItem("token");
   }
 };
 
@@ -57,11 +57,13 @@ export const fetchApi = async <T = unknown>(
   const token = getToken();
   const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
 
-  const headers: HeadersInit = {
-    ...(isFormData ? {} : { "Content-Type": "application/json" }),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(options.headers || {}),
-  };
+  const headers = new Headers(options.headers);
+  if (!isFormData && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
