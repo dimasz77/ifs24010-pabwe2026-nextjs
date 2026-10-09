@@ -19,6 +19,14 @@ describe("normalizePost", () => {
     expect(normalizePost({ id: 4, title: "   " }).title).toBe("Postingan #4");
   });
 
+  it("menangani null dan string IDs", () => {
+    expect(normalizePost(null)).toMatchObject({ id: "", title: "Postingan #" });
+    expect(normalizePost({ id: "post-5" })).toMatchObject({
+      id: "post-5",
+      title: "Postingan #post-5",
+    });
+  });
+
   it("memotong judul yang panjang", () => {
     const p = normalizePost({ id: 5, description: "a".repeat(200) });
     expect(p.title.length).toBeLessThanOrEqual(60);
@@ -29,6 +37,10 @@ describe("normalizePost", () => {
     expect(p.user_id).toBe(9);
     expect(p.created_at).toBe("2026-01-01");
     expect(p.user?.name).toBe("A");
+  });
+
+  it("uses the nested author's id when no user id alias exists", () => {
+    expect(normalizePost({ author: { id: 17, name: "B" } }).user_id).toBe(17);
   });
 
   it("normalizePosts aman untuk input bukan array", () => {
