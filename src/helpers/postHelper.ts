@@ -31,7 +31,7 @@ export function normalizePost(raw: unknown): Post {
 
   return {
     ...r,
-    id: id as Post["id"],
+    id,
     title,
     content,
     cover: cover || undefined,
@@ -39,7 +39,7 @@ export function normalizePost(raw: unknown): Post {
     created_at: firstText(r.created_at, r.createdAt),
     updated_at: (r.updated_at ?? r.updatedAt) as string | undefined,
     user,
-  } as Post;
+  };
 }
 
 export const normalizePosts = (list: unknown): Post[] =>

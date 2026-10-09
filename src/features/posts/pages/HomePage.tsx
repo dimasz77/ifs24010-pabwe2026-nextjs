@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState, ReactNode } from "react";
-import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-import { fetchPosts, deletePost } from "@/features/posts/states/postSlice";
-import PostCard from "@/features/posts/components/PostCard";
-import CreatePostModal from "@/features/posts/components/CreatePostModal";
-import EditPostModal from "@/features/posts/components/EditPostModal";
-import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
-import { Post } from "@/types";
-import { HiPlus } from "react-icons/hi2";
+ import { useEffect, useState, ReactNode } from "react";
+ import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+ import { fetchPosts, deletePost } from "@/features/posts/states/postSlice";
+ import PostCard from "@/features/posts/components/PostCard";
+ import CreatePostModal from "@/features/posts/components/CreatePostModal";
+ import EditPostModal from "@/features/posts/components/EditPostModal";
+ import LoadingSkeleton from "@/components/ui/LoadingSkeleton";
+ import { Post } from "@/types";
+ import { HiPlus } from "react-icons/hi2";
 
 export default function HomePage() {
   const dispatch = useAppDispatch();
@@ -79,12 +79,16 @@ export default function HomePage() {
 
       {content}
 
-      <CreatePostModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
-      <EditPostModal
-        isOpen={!!editingPost}
-        onClose={() => setEditingPost(null)}
-        post={editingPost}
-      />
+      {isCreateOpen && (
+        <CreatePostModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+      )}
+      {editingPost && (
+        <EditPostModal
+          isOpen={!!editingPost}
+          onClose={() => setEditingPost(null)}
+          post={editingPost}
+        />
+      )}
     </div>
   );
 }
