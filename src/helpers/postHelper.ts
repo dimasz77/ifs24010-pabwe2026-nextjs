@@ -30,7 +30,7 @@ export function normalizePost(raw: unknown): Post {
   const cover = firstText(r.cover, r.image, r.image_url, r.thumbnail);
 
   return {
-    ...(r as object),
+    ...r,
     id: id as Post["id"],
     title,
     content,
