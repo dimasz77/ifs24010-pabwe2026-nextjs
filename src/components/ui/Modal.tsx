@@ -42,9 +42,9 @@ export default function Modal({ isOpen, onClose, title, children }: Readonly<Mod
           >
             <HiXMark aria-hidden="true" className="text-xl" />
           </button>
-        </dialog>
+        </div>
         <div className="p-6">{children}</div>
-      </div>
+      </dialog>
     </div>
   );
 }
